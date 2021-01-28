@@ -1,0 +1,341 @@
+﻿
+@page
+
+@model IndexModel
+@using ChatApplication.ViewModel;
+@{
+    Layout = null;
+    ViewData["Title"] = "Chat";
+
+    Guid currentUser = new Guid(Model.userid);
+    List<UserMessage> messages = Model.messages;
+
+
+    ChatUser curruser = Model.loggedinuser;
+    ChatUser friend = Model.friend;
+    Guid friendUserId = new Guid();
+    if (friend != null)
+    {
+        friendUserId = friend.UserId;
+    }
+
+    List<ChatUser> messageusers = Model.messageusers;   //users with whom chat is present
+    List<ChatUser> followusers = Model.followusers; //suggested users
+    string firstconversationId = Model.firstconversationId;
+}
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex">
+<link href="~/css/Chat.css" rel="stylesheet" />
+<link href="~/lib/bootstrap_4/css/bootstrap.min.css" rel="stylesheet" />
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'>
+<link href="~/lib/scroll/css/jquery.mCustomScrollbar.css" rel="stylesheet" />
+<body style="background-color:#f3f3f3;">
+    <div class="container-fluid" >
+        <div class="container">
+            <div id="frame">
+                <div id="sidepanel" class="slidingDiv">
+                    <div id="profile" data-curruserId="@curruser.UserId">
+                        <div class="wrap">
+                            @if (!string.IsNullOrEmpty(curruser.ProfileImage))
+                            {
+                                <img id="profile-img" src="@curruser.ProfileImage" class="online" alt="" />
+                            }
+                            else
+                            {
+                                <img id="profile-img" src="/images/No_Image.png" class="online" alt="" />
+                            }
+
+                            <p>@curruser.Username</p>
+
+                        </div>
+                    </div>
+                    @*<i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>*@
+                    @*<div id="status-options">
+            <ul>
+                <li id="status-online" class="active"><span class="status-circle"></span> <p>Online</p></li>
+                <li id="status-away"><span class="status-circle"></span> <p>Away</p></li>
+                <li id="status-busy"><span class="status-circle"></span> <p>Busy</p></li>
+                <li id="status-offline"><span class="status-circle"></span> <p>Offline</p></li>
+            </ul>
+        </div>
+        <div id="expanded">
+            <label for="twitter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
+            <input name="twitter" type="text" value="mikeross" />
+            <label for="twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
+            <input name="twitter" type="text" value="ross81" />
+            <label for="twitter"><i class="fa fa-instagram fa-fw" aria-hidden="true"></i></label>
+            <input name="twitter" type="text" value="mike.ross" />
+        </div>*@
+                    @*<div id="search">
+            <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+            <input type="text" placeholder="Search contacts..." />
+        </div>*@
+                    <div id="contacts" class="mCustomScrollbar">
+                        @*<p>Messages</p>*@
+                        <div class="messagediv">
+                            <ul>
+
+                                @*already in a chat list*@
+                                @if (messageusers.Count() > 0)
+                                { 
+                                    var intCount = 0;
+                                    @foreach (var item in messageusers)
+                                    {
+                                        intCount= intCount + 1;
+                                        <li class="contact active userlist" count="@intCount" data-conversationid="@item.ConversationId" data-userid="@item.UserId">
+                                            <div class="wrap">
+                                                <span class="contact-status busy"></span>
+                                                @if (!string.IsNullOrEmpty(item.ProfileImage))
+                                                {
+                                                    <img src="@Url.Content(item.ProfileImage)" alt="@item.Username" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="/images/No_Image.png" alt="@item.Username" />
+                                                }
+                                                <div class="meta">
+                                                    <div class="row">
+                                                        <div class="col-md-8 col-8 px-0">  <p class="name">@item.Username</p></div>
+
+                                                        <div class="col-md-4 col-4 px-0 fm_fs_lp_icon">
+                                                            <img src="~/images/angel.svg" alt="" title="Angel">
+                                                            <img src="~/images/expert.svg" title="Expert" />
+                                                            <img src="~/images/verified.svg" title="verified" />
+
+                                                        </div>
+                                                    </div>
+
+                                                    @*<p class="preview">Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>*@
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    @foreach (var item in followusers)
+                                    {
+                                        <li class="contact userlist" data-conversationid="" data-userid="@item.UserId">
+                                            <div class="wrap">
+                                                <span class="contact-status busy"></span>
+                                                @if (!string.IsNullOrEmpty(item.ProfileImage))
+                                                {
+                                                    <img src="@Url.Content(item.ProfileImage)" alt="@item.Username" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="~/images/No_Image.png" alt="@item.Username" />
+                                                }
+                                                <div class="meta">
+                                                    <div class="row">
+                                                        <div class="col-md-8 col-8 px-0">
+                                                            <p class="name">@item.Username</p>
+                                                        </div>
+                                                        <div class="col-md-4 col-4 px-0 fm_fs_lp_icon">
+                                                            <img src="~/images/angel.svg" alt="" title="Angel">
+                                                            <img src="~/images/expert.svg" title="Expert" />
+                                                            <img src="~/images/verified.svg" title="verified" />
+
+                                                        </div>
+                                                    </div>
+                                                    @*<p class="preview">Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>*@
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+
+                            </ul>
+                        </div>
+                        
+                        <!--  <p>Suggestions</p>-->
+                        <div class="col-md-12 fm-chat px-0 mt-2 suggestiondiv" style="display:none">
+
+                            @*<div class="form-group fm_ds_lp_has_feedback">
+                                <input type="text" class="form-control" id="fm_ds_lp_search" placeholder="Search...">
+                                <i class="fa fa-search fa-1x fm_ds_lp_form_control"></i>
+                            </div>*@
+                            <ul>
+                                @*users who are in follow list*@
+                                @foreach (var item in followusers)
+                                {
+                                    <li class="contact userlist" data-conversationid="" data-userid="@item.UserId">
+                                        <div class="wrap">
+                                            <span class="contact-status busy"></span>
+                                            @if (!string.IsNullOrEmpty(item.ProfileImage))
+                                            {
+                                                <img src="@Url.Content(item.ProfileImage)" alt="@item.Username" />
+                                            }
+                                            else
+                                            {
+                                                <img src="~/images/No_Image.png" alt="@item.Username" />
+                                            }
+                                            <div class="meta">
+                                                <div class="row">
+                                                    <div class="col-md-8 col-8 px-0">
+                                                        <p class="name">@item.Username</p>
+                                                    </div>
+                                                    <div class="col-md-4 col-4 px-0 fm_fs_lp_icon">
+                                                        <img src="~/images/angel.svg" alt="" title="Angel">
+                                                        <img src="~/images/expert.svg" title="Expert" />
+                                                        <img src="~/images/verified.svg" title="verified" />
+
+                                                    </div>
+                                                </div>
+                                                @*<p class="preview">Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>*@
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+
+                            </ul>
+
+                        </div>
+                        
+
+
+                    </div>
+                    <div id="bottom-bar">
+                        @*<button id="addcontact"><i class="fa fa-user-plus fa-fw" aria-hidden="true"></i> <span>Add contact</span></button>
+            <button id="settings"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span></button>*@
+                    </div>
+
+                    <div class="col-md-12 text-right contacticon" style="cursor:pointer">
+                        <img src="~/images/msgicon.png"/>
+                    </div>
+
+                   
+                </div>
+
+             
+                <div class="content show_hide">
+                    <div class="col-md-12 previous"><a href="#" class="bkbtn"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i> Back</a></div>
+                    @if (friend != null)
+                    {
+                        <div class="contact-profile">
+                            @if (!string.IsNullOrEmpty(friend.ProfileImage))
+                            {
+                                <img src="@Url.Content(friend.ProfileImage)" alt="@friend.Username" />
+                            }
+                            else
+                            {
+                                <img src="~/images/No_Image.png" alt="@friend.Username" />
+                            }
+                            <p>@friend.Username</p>
+                            @*<div class="social-media">
+                    <i class="fa fa-facebook" aria-hidden="true"></i>
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                    <i class="fa fa-instagram" aria-hidden="true"></i>
+                </div>*@
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="contact-profile">
+                            <img src="~/images/No_Image.png" alt="" />
+                            <p></p>
+                        </div>
+                    }
+
+                    <div class="messagecontainer">
+                        <div class="messages mCustomScrollbar">
+                            <ul id="messagelist" data-chatconversId="@firstconversationId" data-curruserId="@curruser.UserId" data-frienduserid="@friendUserId">
+                                @if (Model.messages != null)
+                                {
+                                    foreach (var item in messages.OrderBy(x=>x.CreatedDate))
+                                    {
+                                        var cssclass = item.FromUserId == currentUser ? "replies" : "sent";
+                                        var imagepath = item.FromUserId == currentUser ? curruser.ProfileImage : friend.ProfileImage;
+                                        <li class="@cssclass">
+                                            @if (!string.IsNullOrEmpty(imagepath))
+                                            {
+                                                <img src="@Url.Content(imagepath)" alt="" />
+                                            }
+                                            else
+                                            {
+                                                <img src="/images/No_Image.png" alt="" />
+                                            }
+                                                <p>
+                                                    @item.Message
+                                                    @{
+                                                        TimeSpan ts = DateTime.Now.Subtract(System.Convert.ToDateTime(item.CreatedDate));
+                                                    }
+                                                    <br/>
+                                                    @((ts.TotalSeconds >= 3600) ? System.Convert.ToDateTime(item.CreatedDate).ToString("d MMM yy H:mm tt") : (ts.Hours == 0 ? ts.Minutes + " m ago" : ts.Hours + " h ago"))
+                                                </p>
+                                        </li>
+                                    }
+                                }
+
+
+                            </ul>
+                        </div>
+                        @if (Model.messages == null && friend == null)
+                        {
+                            <p style="text-align:center">Start chatting by clicking anyone of the user</p>
+                        }
+                    </div>
+                    <div class="message-input">
+                        <div class="wrap">
+                            <input type="text" placeholder="Write your message..." id="messageInput" />
+                            @*<i class="fa fa-paperclip attachment" aria-hidden="true"></i>*@
+                            <button class="submit"> <img src="~/images/textarea-submit-btn.png" /></button>
+                           
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src='https://code.jquery.com/jquery-2.2.4.min.js'></script>
+
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script src="/js/chat/Chat.js"></script>
+    <script src="/lib/bootstrap_4/js/bootstrap.min.js"></script>
+    <script src="~/lib/scroll/js/jquery.mCustomScrollbar.concat.min.js"></script>
+
+    @*<script>
+            (function ($) {
+                $(window).on("load", function () {
+
+                    $(".messagecontainer").mCustomScrollbar({
+                        theme: "minimal"
+                    });
+
+                });
+            })(jQuery);
+        </script>*@
+
+
+    <script>
+        @*$(document).ready(function () {
+            debugger;
+            if ('@friend' == "")
+            { 
+                $(".userlist[count=1]").click();
+            }
+            
+        });*@
+        if ($(window).width() <= 768) {
+            $(document).ready(function () {
+
+                $(".show_hide").hide();
+                $(".slidingDiv").show();
+
+                $('.slidingDiv').click(function () {
+                    $(".show_hide").toggle("slide");
+                    $(".slidingDiv").hide();
+                });
+                $('.previous').click(function () {
+                    $(".slidingDiv").toggle("slide");
+                    $(".show_hide").hide();
+                });
+
+            });
+        }
+    </script>
+</body>

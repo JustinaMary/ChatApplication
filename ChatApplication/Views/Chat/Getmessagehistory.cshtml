@@ -1,0 +1,43 @@
+﻿@*@model IEnumerable<ChatApplication.ViewModel.MessageHistory>*@
+@using ChatApplication.ViewModel;
+
+@{
+    Layout = null;
+    Guid currentUser = ViewBag.CurrentUserId;
+    List<UserMessage> messages = ViewBag.Messages;
+    List<ChatUser> userlist = ViewBag.UserDetails;
+    ChatUser curruser = userlist.Where(t => t.UserId == currentUser).SingleOrDefault();
+    ChatUser friend = userlist.Where(t => t.UserId != currentUser).SingleOrDefault();
+}
+
+
+
+   
+            @foreach (var item in messages.OrderBy(t => t.CreatedDate))
+            {
+                var cssclass = item.FromUserId == currentUser ? "replies" : "sent";
+                var imagepath = item.FromUserId == currentUser ? curruser.ProfileImage : friend.ProfileImage;
+<li class="@cssclass">
+    @if (!string.IsNullOrEmpty(imagepath))
+    {
+        <img src="@Url.Content(imagepath)" alt="" />
+    }
+    else
+    {
+        <img src="/images/No_Image.png" alt="" />
+    }
+    <p>
+        @item.Message
+        @{
+            TimeSpan ts = DateTime.Now.Subtract(System.Convert.ToDateTime(item.CreatedDate));
+        }
+        <br />
+        @((ts.TotalSeconds >= 3600) ? System.Convert.ToDateTime(item.CreatedDate).ToString("d MMM yy H:mm tt") : (ts.Hours == 0 ? ts.Minutes + " m ago" : ts.Hours + " h ago"))
+    </p>
+</li>
+            }
+
+       
+
+
+
